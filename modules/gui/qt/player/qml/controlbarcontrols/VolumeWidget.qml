@@ -97,8 +97,82 @@ T.Pane {
         Widgets.SliderExt {
             id: volControl
 
-            // FIXME: use VLCStyle
-            implicitWidth: VLCStyle.dp(100, VLCStyle.scale)
+            implicitWidth: VLCStyle.volumeCone_width
+
+            // Redesign: the old volume bar was a "deformed cone"; draw a full
+            // wedge that grows from left to right. No round knob on top.
+            handle: Item {
+                x: volControl.leftPadding + volControl.visualPosition * volControl.availableWidth
+                y: volControl.topPadding + volControl.availableHeight / 2
+                implicitWidth: 0
+                implicitHeight: 0
+            }
+
+            background: Item {
+                id: cone
+
+                x: volControl.leftPadding
+                y: volControl.topPadding + (volControl.availableHeight - height) / 2
+
+                implicitWidth: VLCStyle.volumeCone_width
+                implicitHeight: VLCStyle.volumeCone_height
+                width: volControl.availableWidth
+                height: implicitHeight
+
+                clip: true
+
+                // Height of the wedge at its thin (left) end
+                readonly property real minH: Math.round(height * 0.25)
+                readonly property real rise: height - minH
+                readonly property real angleRad: Math.atan2(rise, Math.max(1, width))
+                // Rotated rectangles start one "height" before x = 0 so the
+                // bottom-left corner is always covered
+                readonly property real startX: -height * Math.cos(angleRad)
+                readonly property real startY: rise + height * Math.sin(angleRad)
+                readonly property real wedgeLength: Math.sqrt(width * width + rise * rise) + height * 2
+
+                // Maps a horizontal fraction of the slider to a gradient stop
+                // position along the (slightly rotated) fill rectangle
+                function stopAt(fraction) {
+                    return Math.max(0, Math.min(1, (height + fraction * width) / wedgeLength))
+                }
+
+                // Empty track
+                Rectangle {
+                    x: cone.startX
+                    y: cone.startY
+                    width: cone.wedgeLength
+                    height: cone.height * 2 + cone.width
+                    transformOrigin: Item.TopLeft
+                    rotation: -cone.angleRad * 180 / Math.PI
+                    antialiasing: true
+                    color: volControl.bgColor
+                }
+
+                // Filled part, clipped at the current volume
+                Item {
+                    width: volControl.visualPosition * cone.width
+                    height: cone.height
+                    clip: true
+
+                    Rectangle {
+                        x: cone.startX
+                        y: cone.startY
+                        width: cone.wedgeLength
+                        height: cone.height * 2 + cone.width
+                        transformOrigin: Item.TopLeft
+                        rotation: -cone.angleRad * 180 / Math.PI
+                        antialiasing: true
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: cone.stopAt(0.0); color: "#5E9A22" }
+                            GradientStop { position: cone.stopAt(root._fullvolpos * 0.98); color: "#B7C51C" }
+                            GradientStop { position: cone.stopAt(Math.min(1.0, root._fullvolpos + 0.02)); color: "#E2A11B" }
+                            GradientStop { position: cone.stopAt(1.0); color: "#D8401C" }
+                        }
+                    }
+                }
+            }
 
             // WARNING: Directly setting the insets break handle and background positioning.
             Binding on topInset {

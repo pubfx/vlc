@@ -28,7 +28,14 @@ import VLC.MainInterface
 T.ProgressBar {
     id: control
 
-    readonly property real _hoveredScalingFactor: 1.8
+    // Redesign options. Defaults keep the original look.
+    property real hoverScalingFactor: 1.8
+    property color progressColor: theme.fg.primary
+    property real cornerRadius: -1        // < 0: original rounded/pill look
+    property real handleBarWidth: 0       // > 0: vertical bar handle instead of a square knob
+    property bool alwaysShowHandle: false
+
+    readonly property real _hoveredScalingFactor: hoverScalingFactor
     property int barHeight: VLCStyle.dp(5, VLCStyle.scale)
     readonly property real _scaledBarHeight: control.barHeight * _hoveredScalingFactor
     readonly property real _scaledY: (-control.barHeight / 2) * (control._hoveredScalingFactor - 1)
@@ -324,7 +331,7 @@ T.ProgressBar {
             visible: !Player.hasChapters
             color: control.backgroundColor
             anchors.fill: parent
-            radius: implicitHeight
+            radius: (control.cornerRadius >= 0) ? control.cornerRadius : implicitHeight
         }
 
         Repeater {
@@ -357,7 +364,7 @@ T.ProgressBar {
                     readonly property bool _hovered: hoverHandler.hovered &&
                                             (hoverHandler.point.position.x > x && hoverHandler.point.position.x < x+width)
 
-                    color: _currentChapter < 0 ? theme.fg.primary : control.backgroundColor
+                    color: _currentChapter < 0 ? control.progressColor : control.backgroundColor
                     width: sliderRect.width * seekpointsRect.endPosition - x - control._seekPointsDistance
                     x: sliderRect.width * seekpointsRect.startPosition
 
@@ -370,7 +377,7 @@ T.ProgressBar {
 
                         width: sliderRect.width * control.visualPosition - parent.x - control._seekPointsDistance
                         visible: parent._currentChapter === 0
-                        color: theme.fg.primary
+                        color: control.progressColor
 
                         // We use dynamic mutability group because time interpolation
                         // may induce rapid change:
@@ -431,9 +438,9 @@ T.ProgressBar {
             id: progressRect
             width: control.visualPosition * parent.width
             visible: !Player.hasChapters
-            color: theme.fg.primary
+            color: control.progressColor
             height: control.barHeight
-            radius: control._seekPointsRadius
+            radius: (control.cornerRadius >= 0) ? control.cornerRadius : control._seekPointsRadius
 
             // We use dynamic mutability group because time interpolation
             // may induce rapid change:
@@ -568,14 +575,18 @@ T.ProgressBar {
     Rectangle {
         id: sliderHandle
 
+        readonly property bool _isBar: control.handleBarWidth > 0
         property int _size: control.barHeight * 3
+        // Bar handle: thin vertical marker slightly taller than the track
+        readonly property real _w: _isBar ? control.handleBarWidth : _size
+        readonly property real _h: _isBar ? control.barHeight + VLCStyle.dp(4, VLCStyle.scale) : _size
 
         x: (control.visualPosition * control.availableWidth) - width / 2
         y: (control.barHeight - height) / 2
 
-        implicitWidth: sliderHandle._size
-        implicitHeight: sliderHandle._size
-        radius: VLCStyle.margin_small
+        implicitWidth: sliderHandle._w
+        implicitHeight: sliderHandle._h
+        radius: _isBar ? VLCStyle.dp(2, VLCStyle.scale) : VLCStyle.margin_small
         color: theme.fg.primary
 
         // We use dynamic mutability group because time interpolation
@@ -605,10 +616,17 @@ T.ProgressBar {
                 to: "visible"
                 SequentialAnimation {
                     PropertyAction { target: sliderHandle; property: "visible"; value: true; }
-                    NumberAnimation {
-                        target: sliderHandle; properties: "implicitWidth,implicitHeight"
-                        to: sliderHandle._size
-                        duration: VLCStyle.duration_short; easing.type: Easing.InSine
+                    ParallelAnimation {
+                        NumberAnimation {
+                            target: sliderHandle; property: "implicitWidth"
+                            to: sliderHandle._w
+                            duration: VLCStyle.duration_short; easing.type: Easing.InSine
+                        }
+                        NumberAnimation {
+                            target: sliderHandle; property: "implicitHeight"
+                            to: sliderHandle._h
+                            duration: VLCStyle.duration_short; easing.type: Easing.InSine
+                        }
                     }
                 }
             },
@@ -616,16 +634,25 @@ T.ProgressBar {
                 to: "visibleLarge"
                 SequentialAnimation {
                     PropertyAction { target: sliderHandle; property: "visible"; value: true; }
-                    NumberAnimation {
-                        target: sliderHandle; properties: "implicitWidth,implicitHeight"
-                        to: sliderHandle._size * (0.8 * control._hoveredScalingFactor)
-                        duration: VLCStyle.duration_short; easing.type: Easing.InSine
+                    ParallelAnimation {
+                        NumberAnimation {
+                            target: sliderHandle; property: "implicitWidth"
+                            to: sliderHandle._isBar ? sliderHandle._w
+                                                    : sliderHandle._size * (0.8 * control._hoveredScalingFactor)
+                            duration: VLCStyle.duration_short; easing.type: Easing.InSine
+                        }
+                        NumberAnimation {
+                            target: sliderHandle; property: "implicitHeight"
+                            to: sliderHandle._isBar ? sliderHandle._h * control._hoveredScalingFactor
+                                                    : sliderHandle._size * (0.8 * control._hoveredScalingFactor)
+                            duration: VLCStyle.duration_short; easing.type: Easing.InSine
+                        }
                     }
                 }
             }
         ]
 
-        state: (hoverHandler.hovered || control.visualFocus)
+        state: (hoverHandler.hovered || control.visualFocus || control.alwaysShowHandle)
                ? ((control._currentChapterHovered || (Player.hasChapters && fsm._state === fsm.fsmHeld)) ? "visibleLarge" : "visible")
                : "hidden"
     }

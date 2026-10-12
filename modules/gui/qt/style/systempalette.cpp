@@ -729,9 +729,10 @@ void SystemPalette::makeDarkPalette()
     //window banner & miniplayer
     {
         C::ColorSet CS = C::Window;
-        setColor(CS, C::Bg, C::Primary, C::Normal, Qt::black); //FIXME
+        // Redesign: top bar and control bar share the neutral BG/A3 grey
+        setColor(CS, C::Bg, C::Primary, C::Normal, darkGrey300);
         setColor(CS, C::Bg, C::Secondary, C::Normal, Qt::black);
-        setColor(CS, C::Decoration, C::Border, C::Normal, darkGrey800); //FIXME not a predef
+        setColor(CS, C::Decoration, C::Border, C::Normal, darkGrey500); //FIXME not a predef
     }
 
     //badges
@@ -843,9 +844,10 @@ void SystemPalette::makeDarkPalette()
     //slider
     {
         C::ColorSet CS = C::Slider;
-        setColor(CS, C::Bg, C::Primary, C::Normal, setColorAlpha("#929292", 0.2)); //FIXME not in the palette
-        setColor(CS, C::Bg, C::Primary, C::Focused, setColorAlpha("#929292", 0.4));
-        setColor(CS, C::Bg, C::Primary, C::Hovered, setColorAlpha("#929292", 0.4));
+        // Redesign: deep track (BG/B2) instead of a translucent grey
+        setColor(CS, C::Bg, C::Primary, C::Normal, QColor("#090909"));
+        setColor(CS, C::Bg, C::Primary, C::Focused, QColor("#111111"));
+        setColor(CS, C::Bg, C::Primary, C::Hovered, QColor("#111111"));
 
         setColor(CS, C::Fg, C::Primary, C::Normal, orange500);
         setColor(CS, C::Fg, C::Positive, C::Normal, "#0F7B0F");  //FIXME

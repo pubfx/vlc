@@ -177,6 +177,15 @@ QtObject {
 
     readonly property real button_radius: MainCtx.dp(4, scale)
 
+    // Redesign: "rectangular, but a little less sharp"
+    readonly property real redesign_radius: MainCtx.dp(3, scale)
+    // Redesign: thick, inline seek bar in the control row
+    readonly property int seekBar_height: MainCtx.dp(18, scale)
+    readonly property int seekBar_handleWidth: MainCtx.dp(6, scale)
+    // Redesign: wedge ("cone") volume slider
+    readonly property int volumeCone_width: MainCtx.dp(64, scale)
+    readonly property int volumeCone_height: MainCtx.dp(16, scale)
+
     readonly property int contextButton_width: icon_normal
     readonly property int contextButton_margin: margin_xxsmall
 

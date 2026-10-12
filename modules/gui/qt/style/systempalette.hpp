@@ -111,19 +111,22 @@ public:
     Q_PROPERTY(CSDMetrics* csdMetrics READ getCSDMetrics NOTIFY CSDMetricsChanged FINAL)
 
     //standard color definitions used by light/dark themes
-    COLOR_DEFINITION(orange500, "#FF8800");
-    COLOR_DEFINITION(orange800, "#FF610A");
+    // Redesign palette (from the "VLC Redesign" Figma variables):
+    //   Accent/Main #D37918, BG/A3 #1B1B1B, BG/A4 #191919,
+    //   Divider/Dim #222222, Divider/Bright #373737
+    COLOR_DEFINITION(orange500, "#D37918");
+    COLOR_DEFINITION(orange800, "#B8650F");
 
-    COLOR_DEFINITION(orange400, "#f89a06"); //FIXME name have been chosen randomly by me
-    COLOR_DEFINITION(orange200, "#e29a06"); //FIXME name have been chosen randomly by me
+    COLOR_DEFINITION(orange400, "#E08A2C"); //FIXME name have been chosen randomly by me
+    COLOR_DEFINITION(orange200, "#C9701A"); //FIXME name have been chosen randomly by me
 
-    COLOR_DEFINITION(darkGrey200, "#1E1E1E");
-    COLOR_DEFINITION(darkGrey300, "#212121");
-    COLOR_DEFINITION(darkGrey400, "#242424");
-    COLOR_DEFINITION(darkGrey500, "#272727");
+    COLOR_DEFINITION(darkGrey200, "#191919");
+    COLOR_DEFINITION(darkGrey300, "#1B1B1B");
+    COLOR_DEFINITION(darkGrey400, "#1F1F1F");
+    COLOR_DEFINITION(darkGrey500, "#222222");
     COLOR_DEFINITION(darkGrey600, "#2A2A2A");
-    COLOR_DEFINITION(darkGrey700, "#2D2D2D");
-    COLOR_DEFINITION(darkGrey800, "#303030");
+    COLOR_DEFINITION(darkGrey700, "#303030");
+    COLOR_DEFINITION(darkGrey800, "#373737");
 
     COLOR_DEFINITION(lightGrey100, "#FAFAFA");
     COLOR_DEFINITION(lightGrey200, "#F6F6F6");

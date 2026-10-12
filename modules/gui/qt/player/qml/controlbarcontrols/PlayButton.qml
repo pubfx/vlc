@@ -152,19 +152,8 @@ T.Control {
 
         hoverEnabled: true
 
-        readonly property bool cursorInside: {
-            if (!containsMouse)
-                return false
-
-            const center = (width / 2)
-            if (Helpers.pointInRadius( center - mouseX,
-                                       center - mouseY,
-                                       center )) {
-                return true
-            } else {
-                return false
-            }
-        }
+        // Redesign: the button is a rounded rectangle, so the whole area is clickable
+        readonly property bool cursorInside: containsMouse
 
         onCursorInsideChanged: {
             if (pressed && !cursorInside) {
@@ -217,8 +206,8 @@ T.Control {
                 return VLCIcons.play_filled
         }
 
-        color: cursorInside ? theme.accent
-                            : "black"  //foreground is always black
+        // Redesign: dark glyph on the accent fill
+        color: "#141414"
 
         font.pixelSize: Math.round(parent.height / 1.7)
 
@@ -240,14 +229,15 @@ T.Control {
     }
 
     background: Item {
-        implicitWidth: height
-        implicitHeight: VLCStyle.icon_medium
+        // Redesign: wide, slightly rounded block, a little bigger than the other buttons
+        implicitWidth: Math.round(height * 1.6)
+        implicitHeight: VLCStyle.dp(30, VLCStyle.scale)
 
         Widgets.AnimatedBackground {
             anchors.fill: parent
             anchors.margins: -border.width * 4
 
-            radius: width / 2
+            radius: VLCStyle.redesign_radius + border.width * 4
             border.pixelAligned: false
 
             enabled: theme.initialized
@@ -258,12 +248,10 @@ T.Control {
         Rectangle {
             anchors.fill: parent
 
-            radius: width / 2
+            radius: VLCStyle.redesign_radius
 
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#e25b01" }
-                GradientStop { position: 1.0; color: "#f89a06" }
-            }
+            // Shown only while the press-and-hold (stop) animation shrinks the fill
+            color: Qt.darker(theme.accent, 1.6)
 
             Widgets.RoundedRectangleShadow {
                 id: hoverShadow
@@ -280,13 +268,13 @@ T.Control {
             Rectangle {
                 id: innerRectangle
 
-                color: "white"
+                color: root.cursorInside ? Qt.lighter(theme.accent, 1.12) : theme.accent
 
                 anchors.fill: parent
-                anchors.margins: _diminished ? (parent.width / 2)
-                                             : VLCStyle.dp(2, VLCStyle.scale)
+                anchors.margins: _diminished ? (parent.height / 2)
+                                             : 0
 
-                radius: width / 2
+                radius: VLCStyle.redesign_radius
 
                 property bool _diminished: false
 

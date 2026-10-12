@@ -36,6 +36,12 @@ FocusScope {
 
     property int identifier: -1
 
+    // Redesign: items placed between the left and right control groups
+    // (used for the inline seek bar). Only shown when the layout has no
+    // center group, see `fillerAvailable`.
+    property list<Item> fillerItems
+    readonly property bool fillerAvailable: loaderLeftRight.active
+
     readonly property PlayerControlbarModel model: {
         if (!!MainCtx.controlbarProfileModel.currentModel)
             return MainCtx.controlbarProfileModel.currentModel.getModel(identifier)
@@ -117,7 +123,14 @@ FocusScope {
                 }
             }
 
-            Item {
+            RowLayout {
+                spacing: VLCStyle.margin_small
+
+                Layout.leftMargin: (playerControlLayout.fillerItems.length > 0) ? VLCStyle.margin_small : 0
+                Layout.rightMargin: Layout.leftMargin
+
+                children: playerControlLayout.fillerItems
+
                 function containsVisibleItem(repeater) {
                     for (let i = 0; i < repeater.count; ++i) {
                         const item = repeater.itemAt(i)
