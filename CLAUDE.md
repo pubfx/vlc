@@ -48,7 +48,7 @@ neutral dark greys, rectangular shapes that are only slightly rounded.
    `qmlformat path/to/File.qml > /dev/null` — a non-zero exit means a syntax error.
    (`qmlformat` ships with Qt 6; on Linux it is often in `/usr/lib/qt6/bin/`.)
 2. Build: `meson compile -C build` (see BUILD.md for first-time setup).
-3. Run: `./build/bin/vlc` (Linux dev build) with a test video and look at
+3. Run: `./build/bin/vlc-static` (Linux dev build; plain `vlc` needs `meson install`) with a test video and look at
    the changed screen. Compare against the matching Figma frame screenshot.
 4. Watch the terminal for `qml:` warnings — QML binding errors only show at runtime.
 
@@ -64,12 +64,32 @@ neutral dark greys, rectangular shapes that are only slightly rounded.
   falls back to `LeftRightSlider`.
 - Bookmarks are hidden while the seek bar is inline (they move to the
   sidebar in phase 3).
+- Screenshots on WSL: WSLg refuses screenshot clients, and `x11grab` on
+  XWayland gives tiled/partial images. Use `docs/redesign/tools/capture.sh`
+  (Xvfb + xdotool + ffmpeg), `make-test-video.sh` for the test clip and
+  `measure.py` to measure colors/sizes. The pre-redesign reference build is
+  a worktree at `~/vlc-baseline` (`capture.sh -t ~/vlc-baseline ...`).
+- In a fresh test config set `qt-privacy-ask=0` in `vlcrc` (private option,
+  rejected on the command line), or a Welcome dialog covers the player.
+  A killed VLC leaves `Playlist/RecoveryFilePath` in
+  `vlc-qt-interface.conf`, which shows a "closed abruptly" dialog next start.
+  `capture.sh` handles both.
+- `--start-time=N` makes VLC 4 show time relative to N (00:00 / length-N).
+- Volume reads -1 (empty cone, tooltip "-100%") when the audio output has
+  no volume control or is stuck. Not a UI bug. If WSLg's PulseServer hangs
+  (VLC freezes on play, `ffmpeg -f lavfi -i sine=duration=1 -f pulse x`
+  hangs), restart only PulseAudio; WSLGd respawns it:
+  `cd /mnt/c && wsl.exe --system -- sh -c 'pkill -x pulseaudio'`
+  (`wsl --shutdown` also works but ends every WSL session).
+- Known upstream warnings (also on the pre-redesign commit), ignore them:
+  `QTimer::start: negative intervals` at startup, and
+  `variable subsdelay-factor not found` when opening the old effects dialog.
 
 ## Status
 
-- Phase 1 — DONE (branch `redesign/phase1`, not yet compiled/run on a real
-  machine): palette, inline thick seek bar, default button layout, orange
-  rounded play button, cone volume slider, top bar available in fullscreen.
-  First task in Claude Code: build it, run it, fix anything that breaks.
+- Phase 1 — DONE (branch `redesign/phase1`; builds and runs on Ubuntu 26.04
+  WSL 2, Qt 6.10.2): palette, inline thick seek bar, default button layout,
+  orange rounded play button, cone volume slider, top bar available in
+  fullscreen. Visual gaps vs Figma 247:445 are not yet addressed.
 - Phase 2 — NEXT: quick access to tracks and menus. See SPEC.md §2.
 - Phases 3–6: see SPEC.md.

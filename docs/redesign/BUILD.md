@@ -15,7 +15,10 @@ sudo apt update
 sudo apt build-dep vlc
 
 # 2. Qt 6 with private headers + build tools
-sudo apt install git ninja-build pipx \
+#    libxcb-damage0-dev is not pulled in by build-dep but is required for the
+#    X11 compositor (video embedded in the player window under X11/XWayland).
+sudo apt install git ninja-build pipx build-essential ffmpeg \
+  libxcb-damage0-dev libxcb-xkb-dev qt6-declarative-dev-tools \
   qt6-base-dev qt6-base-private-dev \
   qt6-declarative-dev qt6-declarative-private-dev \
   qt6-svg-dev qt6-shadertools-dev \
@@ -35,8 +38,19 @@ git checkout redesign/phase1
 # 5. Configure, build, run
 meson setup build -Dqt=enabled
 meson compile -C build
-./build/bin/vlc /path/to/a/video.mkv
+./build/bin/vlc-static /path/to/a/video.mkv
 ```
+
+Run the uninstalled build with `build/bin/vlc-static`: it points VLC at the
+plugins in `build/modules`. `build/bin/vlc` looks in the install prefix
+(`/usr/local/lib/...`) and fails with "cannot start any interface" until you
+run `meson install`.
+
+Ubuntu 24.04+ uses `/etc/apt/sources.list.d/ubuntu.sources`; to enable
+source packages for `apt build-dep`, change `Types: deb` to
+`Types: deb deb-src` on each entry, then `sudo apt update`.
+
+Tested on Ubuntu 26.04 (WSL 2): Qt 6.10.2, Meson 1.12.1 from pipx.
 
 Package names vary slightly between distro versions. If `meson setup`
 reports something missing, install the matching `-dev` package and run
