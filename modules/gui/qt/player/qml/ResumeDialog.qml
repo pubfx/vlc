@@ -32,6 +32,18 @@ FocusScope {
 
     property int maxWidth
 
+    // Redesign: false keeps this instance hidden, so the prompt can live
+    // next to the playback controls instead of the top bar
+    property bool active: true
+
+    // Redesign: whether the prompt wants to be shown; unlike `visible` this
+    // doesn't depend on the parent, so a container can follow it
+    property bool shown: false
+
+    // Redesign: width actually used by the text and buttons on one line
+    readonly property real contentWidth: Math.min(maxWidth, textMetrics.width + VLCStyle.margin_xsmall
+                                                            + continueBtn.width + closeBtn.width)
+
     implicitHeight: continueBtn.y + continueBtn.implicitHeight
     implicitWidth: maxWidth
 
@@ -47,7 +59,10 @@ FocusScope {
 
     function showResumePanel ()
     {
+        if (!resumePanel.active)
+            return
         resumePanel.visible = true
+        resumePanel.shown = true
         continueBtn.forceActiveFocus()
         resumeTimeout.start()
     }
@@ -55,6 +70,7 @@ FocusScope {
     function hideResumePanel() {
         resumeTimeout.stop()
         resumePanel.visible = false
+        resumePanel.shown = false
         Player.acknowledgeRestoreCallback()
         hidden()
     }
@@ -64,6 +80,7 @@ FocusScope {
         interval: 10000
         onTriggered: {
             resumePanel.visible = false
+            resumePanel.shown = false
             hidden()
         }
     }

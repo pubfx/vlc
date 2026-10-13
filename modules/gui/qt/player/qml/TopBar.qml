@@ -54,6 +54,8 @@ FocusScope{
     // Redesign: one "..." menu next to the logo (Figma "menu") instead of the
     // "⋮" menu and play queue buttons on the right
     property bool redesignMenu: false
+    // Redesign: false when the player shows the resume prompt near the controls
+    property bool resumeInTopBar: true
 
     readonly property ColorContext colorContext: ColorContext {
         id: theme
@@ -362,6 +364,8 @@ FocusScope{
 
         ResumeDialog {
             id: resumeDialog
+
+            active: root.resumeInTopBar
 
             anchors.fill: parent
             //add aditional margin so it align with menubar text when visible (see MenuBar.qml)

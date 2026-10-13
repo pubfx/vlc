@@ -957,6 +957,7 @@ FocusScope {
 
         pinControls: MainCtx.pinVideoControls
         redesignMenu: true // Redesign: one "..." menu (SPEC §2)
+        resumeInTopBar: false // Redesign: the prompt sits above the controls
 
         showCSD: MainCtx.clientSideDecoration && (MainCtx.intfMainWindow.visibility !== Window.FullScreen)
         showToolbar: MainCtx.hasToolbarMenu && (MainCtx.intfMainWindow.visibility !== Window.FullScreen)
@@ -1267,6 +1268,43 @@ FocusScope {
 
         onClicked:{
             playerToolbarVisibilityFSM.askShow();
+        }
+    }
+
+    // Redesign: "Continue where you left off" next to the playback controls,
+    // centered above the control bar, instead of in the top-left corner (SPEC §2)
+    Rectangle {
+        id: resumeBox
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: controlBar.top
+        anchors.bottomMargin: VLCStyle.margin_small
+
+        width: centerResume.contentWidth + VLCStyle.margin_normal * 2
+        height: centerResume.implicitHeight + VLCStyle.margin_xsmall * 2
+
+        visible: centerResume.shown
+
+        radius: VLCStyle.trackPanel_radius
+        color: windowTheme.bg.primary
+        border.color: windowTheme.border
+        border.width: VLCStyle.dp(1, VLCStyle.scale)
+
+        ResumeDialog {
+            id: centerResume
+
+            anchors.fill: parent
+            anchors.leftMargin: VLCStyle.margin_normal
+            anchors.rightMargin: VLCStyle.margin_normal
+            anchors.bottomMargin: VLCStyle.margin_xsmall
+
+            maxWidth: rootPlayer.width - VLCStyle.margin_large * 4
+
+            colorContext.palette: windowTheme.palette
+
+            Navigation.parentItem: rootPlayer
+
+            onShownChanged: rootPlayer.lockUnlockAutoHide(shown)
         }
     }
 
