@@ -64,6 +64,9 @@ neutral dark greys, rectangular shapes that are only slightly rounded.
   falls back to `LeftRightSlider`.
 - Bookmarks are hidden while the seek bar is inline (they move to the
   sidebar in phase 3).
+- WSL: always run with `QT_QPA_PLATFORM=xcb`. On WSLg's Wayland, upstream
+  VLC 4 dies with "wp_viewport ... viewport source outside buffer"
+  (crash in the first-run wizard, or a bare video window with no UI).
 - Screenshots on WSL: WSLg refuses screenshot clients, and `x11grab` on
   XWayland gives tiled/partial images. Use `docs/redesign/tools/capture.sh`
   (Xvfb + xdotool + ffmpeg), `make-test-video.sh` for the test clip and

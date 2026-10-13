@@ -52,6 +52,15 @@ source packages for `apt build-dep`, change `Types: deb` to
 
 Tested on Ubuntu 26.04 (WSL 2): Qt 6.10.2, Meson 1.12.1 from pipx.
 
+**WSL 2: run in X11 mode.** Under WSLg's native Wayland, VLC 4 (also
+upstream, before the redesign) is disconnected by the display server
+(`wp_viewport ... viewport source outside buffer`): it crashes, or only a
+bare video window without controls appears. Use XWayland instead:
+
+```sh
+QT_QPA_PLATFORM=xcb ./build/bin/vlc-static /path/to/video.mkv
+```
+
 Package names vary slightly between distro versions. If `meson setup`
 reports something missing, install the matching `-dev` package and run
 `meson setup --reconfigure build`.
