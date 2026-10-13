@@ -83,7 +83,21 @@ neutral dark greys, rectangular shapes that are only slightly rounded.
   (`wsl --shutdown` also works but ends every WSL session).
 - Known upstream warnings (also on the pre-redesign commit), ignore them:
   `QTimer::start: negative intervals` at startup, and
-  `variable subsdelay-factor not found` when opening the old effects dialog.
+  `variable subsdelay-factor not found` when opening the old effects dialog,
+  `QObject::~QObject: Timers cannot be stopped from another thread` on quit.
+- Qt Quick *Templates* (`T.Button`, `T.ItemDelegate`) have no implicit size;
+  set `implicitWidth/Height` from content + padding like VLC's widgets do.
+- A non-modal `T.Popup` closes on press outside, so clicking the button that
+  opened it closes it and the click reopens it; ignore a click right after
+  `closed` (see `TracksQuickButton.qml`).
+- `BooleanPropertyAction` needs a NOTIFY signal that carries the bool.
+- QMenu submenus are separate windows and don't inherit the parent palette;
+  set it before adding entries, since icons are colorized at creation
+  (`newRedesignSubmenu` in `menus.cpp`).
+- In the player, keys go to the focused control while the bars are visible;
+  they become VLC hotkeys only when the bars are hidden (test with Ctrl+\).
+- `vlc_actions_get_id` wants "key-play-pause", `vlc_actions_get_keycodes`
+  the bare "play-pause".
 
 ## Status
 
@@ -91,5 +105,10 @@ neutral dark greys, rectangular shapes that are only slightly rounded.
   WSL 2, Qt 6.10.2): palette, inline thick seek bar, default button layout,
   orange rounded play button, cone volume slider, top bar available in
   fullscreen. Visual gaps vs Figma 247:445 are not yet addressed.
-- Phase 2 — NEXT: quick access to tracks and menus. See SPEC.md §2.
+- Phase 2 — DONE except icons (branch `redesign/phase2`): subtitle/audio
+  buttons with a quick track panel (video as a tab, audio output devices),
+  Hide UI (Ctrl+\), new right-click menu, one "..." top bar menu, resume
+  prompt above the controls, shortcut shown in notifications. Open: Figma
+  icons (needs `python3-fontforge`), resume/Open Recent checks (need
+  `libmedialibrary-dev`).
 - Phases 3–6: see SPEC.md.

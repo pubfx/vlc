@@ -31,20 +31,27 @@ file. Figma frame ids are in `FIGMA-MAP.md`. Status: ✅ done, ⏳ next, ☐ lat
   leaves. ☐ Tune hide timing to be quicker.
 - ☐ Optional fullscreen and picture-in-picture buttons in the top bar.
 
-## 2. Quick access — tracks and menus ⏳ (phase 2)
+## 2. Quick access — tracks and menus ✅ (phase 2, branch `redesign/phase2`)
 
-- Subtitle button (bottom-right) opens a list of subtitle tracks directly
-  (frames "subtitle one" / "subtitle multiple").
-- Audio button next to it shows audio tracks **and** audio output devices
-  (headphones/speakers).
-- Video tracks: a tab in the same panel, no separate button (rarely used).
-- Remove the duplicated top menu; replace with one "⋯" menu icon holding
-  media options and extra settings (frame "menu").
-- Clean up the right-click menu in the new style and add "Hide UI"
-  (also as a keyboard shortcut) (frame "right-click menu", "Player - hide UI").
-- Move "Continue where you left off" prompt next to the playback controls in
-  the center, not far away (ResumeDialog.qml).
-- On-screen messages show the shortcut that was pressed, not just the action.
+- ✅ Subtitle button (bottom-right) opens a list of subtitle tracks directly
+  (frames "subtitle one" / "subtitle multiple"). `TracksQuickMenu.qml`,
+  `SubtitleTracksButton.qml`.
+- ✅ Audio button next to it shows audio tracks **and** audio output devices
+  (headphones/speakers). `AudioTracksButton.qml`.
+- ✅ Video tracks: a tab in the same panel, no separate button (rarely used).
+- ✅ Remove the duplicated top menu; replace with one "⋯" menu icon holding
+  media options and extra settings (frame "menu"). ☐ "Profile" entry
+  (phase 6). The F10 menu bar is still available.
+- ✅ Clean up the right-click menu in the new style and add "Hide UI"
+  (also as a keyboard shortcut, Ctrl+\) (frame "right-click menu",
+  "Player - hide UI").
+- ✅ Move "Continue where you left off" prompt next to the playback controls in
+  the center, not far away (ResumeDialog.qml). ☐ Verify end to end with a
+  media library build.
+- ✅ On-screen messages show the shortcut that was pressed, not just the action
+  (Qt notification, e.g. "Mute · M"; the video OSD text is unchanged).
+- ☐ Figma icons (CC subtitle, waveform audio, orange two-tone menu icons):
+  the icon font needs regenerating with fontforge (`pixmaps/makeIconFont.py`).
 
 ## 3. Player sidebar ☐ (phase 3)
 
