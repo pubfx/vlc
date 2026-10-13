@@ -28,12 +28,14 @@ class UINotifier : public QObject
     Q_OBJECT
 public:
     UINotifier(MainCtx *ctx, QObject *parent = nullptr);
+    ~UINotifier() override;
 
     enum ID
     {
         Scale,
         MinimalView,
-        HideUI // Redesign
+        HideUI, // Redesign
+        Shortcut // Redesign: action and the key that triggered it
     };
 
     Q_ENUM(ID)
@@ -45,6 +47,8 @@ private:
     void setupNotifications();
 
     MainCtx *m_ctx;
+    // Redesign: libvlc instance watched for hotkey actions
+    struct vlc_object_t *m_libvlc = nullptr;
 };
 
 #endif // UI_NOTIFIER_HPP
