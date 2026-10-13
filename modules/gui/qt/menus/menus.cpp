@@ -59,6 +59,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QSignalMapper>
+#include <QKeySequence>
 
 using namespace vlc::playlist;
 
@@ -73,6 +74,71 @@ using namespace vlc::playlist;
   */
 
 RendererMenu *VLCMenuBar::rendererMenu = NULL;
+
+/* Redesign: the user's hotkey for a VLC key option (e.g. "key-stop"), as shown
+ * in the shortcut column of a menu ("Stop        S"). Empty if unbound. */
+static QString hotkeyLabel( qt_intf_t *p_intf, const char *psz_option )
+{
+    char *psz = var_InheritString( p_intf, psz_option );
+    if( !psz )
+        return {};
+    /* several bindings are separated by tabs, show the first one */
+    const QString raw = QString::fromUtf8( psz ).section( '\t', 0, 0 );
+    free( psz );
+
+    const QKeySequence sequence = QKeySequence::fromString( raw, QKeySequence::PortableText );
+    if( sequence.isEmpty() || sequence[0].key() == Qt::Key_unknown )
+        return raw;
+    return sequence.toString( QKeySequence::NativeText );
+}
+
+/* Redesign: show a shortcut in the menu's shortcut column without making it an
+ * active QAction shortcut (VLC handles its hotkeys itself) */
+static void setShortcutLabel( QAction *action, const QString &label )
+{
+    if( !label.isEmpty() )
+        action->setText( action->text() + '\t' + label );
+}
+
+/* Redesign: the player forces the night theme while a video plays, so its
+ * right-click menu uses the same dark style (Figma "right-click menu", dark
+ * tokens BG/A3, BG/B2, FG/A1, Divider): rounded 292 px panel, 48 px rows,
+ * grey text, darker hovered row. */
+static void applyRedesignMenuStyle( QMenu *menu )
+{
+    QPalette palette = menu->palette();
+    for( const QPalette::ColorRole role : { QPalette::Window, QPalette::Base, QPalette::Button } )
+        palette.setColor( role, QColor( "#1B1B1B" ) );
+    /* menu icons are colorized with the text color when they are created */
+    for( const QPalette::ColorRole role : { QPalette::WindowText, QPalette::Text, QPalette::ButtonText } )
+        palette.setColor( role, QColor( "#969696" ) );
+    palette.setColor( QPalette::Highlight, QColor( "#090909" ) );
+    palette.setColor( QPalette::HighlightedText, Qt::white );
+    palette.setColor( QPalette::Disabled, QPalette::Text, QColor( "#404040" ) );
+    palette.setColor( QPalette::Disabled, QPalette::WindowText, QColor( "#404040" ) );
+    menu->setPalette( palette );
+
+    menu->setAttribute( Qt::WA_TranslucentBackground );
+    menu->setWindowFlags( menu->windowFlags() | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint );
+    menu->setStyleSheet( QStringLiteral(
+        "QMenu { background-color: #1B1B1B; color: #969696; border: 1px solid #373737;"
+        "        border-radius: 8px; padding: 4px; min-width: 236px; }"
+        "QMenu::item { padding: 15px 24px 15px 12px; border-radius: 6px;"
+        "              background-color: transparent; }"
+        "QMenu::item:selected { background-color: #090909; color: #FFFFFF; }"
+        "QMenu::item:disabled { color: #404040; }"
+        "QMenu::icon { padding-left: 12px; }"
+        "QMenu::separator { height: 1px; background-color: #222222; margin: 0px 4px; }" ) );
+}
+
+/* Redesign: a submenu that already has the dark palette, so the icons added to
+ * it are colorized for a dark background */
+static QMenu *newRedesignSubmenu( QMenu *parent, const QString &title )
+{
+    QMenu *submenu = new QMenu( title, parent );
+    applyRedesignMenuStyle( submenu );
+    return submenu;
+}
 
 /**
  * @brief Add static entries to DP in menus
@@ -588,6 +654,7 @@ void VLCMenuBar::PopupMenuPlaylistEntries( QMenu *menu, qt_intf_t *p_intf )
             else
                 THEMPL->togglePlayPause();
         });
+        setShortcutLabel( action, hotkeyLabel( p_intf, "key-play-pause" ) ); // Redesign
 #ifndef __APPLE__ /* No icons in menus in Mac */
         action->setIcon( ColorizedSvgIcon::colorizedIconForWidget( QStringLiteral(":/menu/ic_fluent_play_filled.svg"), menu ) );
 #endif
@@ -596,11 +663,13 @@ void VLCMenuBar::PopupMenuPlaylistEntries( QMenu *menu, qt_intf_t *p_intf )
     {
         action = addMPLStaticEntry( p_intf, menu, qtr( "Pause" ),
                 ":/menu/ic_pause_filled.svg", &PlaylistController::togglePlayPause );
+        setShortcutLabel( action, hotkeyLabel( p_intf, "key-play-pause" ) ); // Redesign
     }
 
     /* Stop */
     action = addMPLStaticEntry( p_intf, menu, qtr( "&Stop" ),
             ":/menu/ic_fluent_stop.svg", &PlaylistController::stop );
+    setShortcutLabel( action, hotkeyLabel( p_intf, "key-stop" ) ); // Redesign
     if( !hasInput )
         action->setEnabled( false );
 
@@ -608,16 +677,19 @@ void VLCMenuBar::PopupMenuPlaylistEntries( QMenu *menu, qt_intf_t *p_intf )
     bool bPlaylistEmpty = THEMPL->isEmpty();
     QAction* previousAction = addMPLStaticEntry( p_intf, menu, qtr( "Pre&vious" ),
             ":/menu/ic_fluent_previous.svg", &PlaylistController::prev );
+    setShortcutLabel( previousAction, hotkeyLabel( p_intf, "key-prev" ) ); // Redesign
     previousAction->setEnabled( !bPlaylistEmpty );
     connect( THEMPL, &PlaylistController::isEmptyChanged, previousAction, &QAction::setDisabled);
 
     QAction* nextAction = addMPLStaticEntry( p_intf, menu, qtr( "Ne&xt" ),
             ":/menu/ic_fluent_next.svg", &PlaylistController::next );
+    setShortcutLabel( nextAction, hotkeyLabel( p_intf, "key-next" ) ); // Redesign
     nextAction->setEnabled( !bPlaylistEmpty );
     connect( THEMPL, &PlaylistController::isEmptyChanged, nextAction, &QAction::setDisabled);
 
     action = menu->addAction( qtr( "Record" ), THEMIM, &PlayerController::toggleRecord );
     action->setIcon( QIcon( ":/menu/ic_fluent_record.svg" ) );
+    setShortcutLabel( action, hotkeyLabel( p_intf, "key-record" ) ); // Redesign
     if( !hasInput )
         action->setEnabled( false );
     menu->addSeparator();
@@ -742,9 +814,131 @@ QMenu* VLCMenuBar::MiscPopupMenu( qt_intf_t *p_intf, bool show )
     return menu;
 }
 
+/* Redesign: the open actions of Figma "menu", also used by the "..." menu */
+static void redesignOpenEntries( qt_intf_t *p_intf, QMenu *menu )
+{
+    auto mi = p_intf->p_mi;
+
+    addDPStaticEntry( menu, qtr( "Open File(s)..." ),
+        ":/menu/file.svg", []() { THEDP->simpleOpenDialog(); }, "Ctrl+O" );
+    addDPStaticEntry( menu, qfut( I_OP_OPDIR ),
+        ":/menu/folder.svg", &DialogsProvider::PLOpenDir, "Ctrl+F" );
+    addDPStaticEntry( menu, qtr( "Open &Network Stream..." ),
+        ":/menu/network.svg", &DialogsProvider::openNetDialog, "Ctrl+N" );
+    addDPStaticEntry( menu, qtr( "Open &Disc..." ),
+        ":/menu/disc.svg", &DialogsProvider::openDiscDialog, "Ctrl+D" );
+    addDPStaticEntry( menu, qtr( "Open &Capture Device..." ),
+        ":/menu/capture-card.svg", &DialogsProvider::openCaptureDialog, "Ctrl+C" );
+    addDPStaticEntry( menu, qtr( "Conve&rt / Save..." ), "",
+        &DialogsProvider::openAndTranscodingDialogs, "Ctrl+R" );
+
+    if( mi && var_InheritBool( p_intf, "save-recentplay" ) && mi->hasMediaLibrary() )
+    {
+        MLRecentMediaModel* recentModel = new MLRecentMediaModel(nullptr);
+        recentModel->setMl(mi->getMediaLibrary());
+        recentModel->setLimit(10);
+        QMenu* recentsMenu = new RecentMenu(recentModel, mi->getMediaLibrary(), menu);
+        applyRedesignMenuStyle( recentsMenu );
+        recentsMenu->setTitle( qtr( "Open &Recent Media" ) );
+        recentModel->setParent(recentsMenu);
+        menu->addMenu( recentsMenu );
+    }
+}
+
+/* Redesign: right-click menu of the player (SPEC §2, Figma "right-click menu"):
+ * playback controls with their shortcuts, Hide UI and Fullscreen, the
+ * Playback / Video / Audio / Subtitle submenus, More Settings (the old Tools
+ * and View menus), Play Queue and Open Media, then Quit. */
+static QMenu* redesignPopupMenu( qt_intf_t *p_intf, bool show )
+{
+    QMenu* menu = new VLCMenu(p_intf);
+    applyRedesignMenuStyle( menu );
+    QAction *action;
+
+    VLCMenuBar::PopupMenuPlaylistEntries( menu, p_intf ); // ends with a separator
+
+    action = new BooleanPropertyAction( qtr( "Hide UI" ), p_intf->p_mi, "playerUiHidden", menu );
+    setShortcutLabel( action, QStringLiteral( "Ctrl+\\" ) );
+    menu->addAction( action );
+
+    if( THEMIM->getInput() && THEMIM->getVout() )
+    {
+        action = new BooleanPropertyAction( qtr( "&Fullscreen" ), THEMIM, "fullscreen", menu );
+        setShortcutLabel( action, hotkeyLabel( p_intf, "key-toggle-fullscreen" ) );
+        menu->addAction( action );
+    }
+    menu->addSeparator();
+
+    if( THEMIM->getInput() )
+    {
+        QMenu *submenu = newRedesignSubmenu( menu, qtr( "&Playback" ) );
+        VLCMenuBar::NavigMenu( p_intf, submenu );
+        menu->addMenu( submenu )->setEnabled( !submenu->isEmpty() );
+
+        submenu = newRedesignSubmenu( menu, qtr( "&Video" ) );
+        VLCMenuBar::VideoMenu( p_intf, submenu );
+        menu->addMenu( submenu )->setEnabled( !submenu->isEmpty() );
+
+        submenu = newRedesignSubmenu( menu, qtr( "&Audio" ) );
+        VLCMenuBar::AudioMenu( p_intf, submenu );
+        menu->addMenu( submenu )->setEnabled( !submenu->isEmpty() );
+
+        submenu = newRedesignSubmenu( menu, qtr( "Subti&tle" ) );
+        VLCMenuBar::SubtitleMenu( p_intf, submenu, true );
+        menu->addMenu( submenu );
+
+        menu->addSeparator();
+    }
+
+    QMenu *settingsMenu = newRedesignSubmenu( menu, qtr( "More Settings" ) );
+    VLCMenuBar::ToolsMenu( p_intf, settingsMenu );
+    settingsMenu->addSeparator();
+    QMenu *viewMenu = newRedesignSubmenu( settingsMenu, qtr( "V&iew" ) );
+    VLCMenuBar::ViewMenu( p_intf, viewMenu );
+    settingsMenu->addMenu( viewMenu );
+    menu->addMenu( settingsMenu );
+
+    /* SPEC: the queue plays things in order; playlists are saved collections */
+    QMenu *queueMenu = newRedesignSubmenu( menu, qtr( "Play &Queue" ) );
+    action = queueMenu->addAction( qtr( "Show Play Queue" ) );
+    action->setCheckable( true );
+    action->setChecked( p_intf->p_mi->getPlayqueuePanel()->isVisible() );
+    setShortcutLabel( action, QStringLiteral( "Ctrl+L" ) );
+    QObject::connect( action, &QAction::triggered,
+                      p_intf->p_mi->getPlayqueuePanel(), &SidePanelCtx::setVisible );
+    addDPStaticEntry( queueMenu, qfut( I_PL_SAVE ), "",
+                      &DialogsProvider::savePlayingToPlaylist, "Ctrl+Y" );
+    queueMenu->addSeparator();
+    action = queueMenu->addAction( qtr( "Clear the Play Queue" ), THEMPL, &PlaylistController::clear );
+    action->setEnabled( !THEMPL->isEmpty() );
+    menu->addMenu( queueMenu );
+
+    QMenu *openMenu = newRedesignSubmenu( menu, qtr( "Open Media" ) );
+    redesignOpenEntries( p_intf, openMenu );
+    menu->addMenu( openMenu );
+
+    menu->addSeparator();
+
+    addDPStaticEntry( menu, qtr( "Quit VLC" ), ":/menu/exit.svg",
+                      &DialogsProvider::quit, "Ctrl+Q", QAction::QuitRole );
+
+    /* submenus created by the menu builders (audio device, stereo mode...) */
+    for( QMenu *child : menu->findChildren<QMenu *>() )
+        applyRedesignMenuStyle( child );
+
+    if( show )
+        menu->popup( QCursor::pos() );
+    return menu;
+}
+
 /* Main Menu that sticks everything together  */
 QMenu* VLCMenuBar::PopupMenu( qt_intf_t *p_intf, bool show )
 {
+    /* Redesign: new right-click menu for the Qt interface; the skins
+     * interface (Qt as dialog provider) keeps the original one below */
+    if( !p_intf->b_isDialogProvider )
+        return redesignPopupMenu( p_intf, show );
+
     /* */
     QMenu* menu = new VLCMenu(p_intf);
     input_item_t* p_input = THEMIM->getInput();

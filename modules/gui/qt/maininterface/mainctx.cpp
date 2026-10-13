@@ -632,7 +632,7 @@ void MainCtx::setPlayerUiHidden(bool hidden)
         return;
 
     m_playerUiHidden = hidden;
-    emit playerUiHiddenChanged();
+    emit playerUiHiddenChanged(hidden);
 }
 
 void MainCtx::setPinOpacity(float pinOpacity)

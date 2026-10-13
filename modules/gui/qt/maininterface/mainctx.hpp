@@ -593,7 +593,7 @@ signals:
     void intfDevicePixelRatioChanged();
 
     void pinVideoControlsChanged();
-    void playerUiHiddenChanged();
+    void playerUiHiddenChanged(bool hidden); // with a value, for BooleanPropertyAction
     void pinOpacityChanged();
 
     void hasAcrylicSurfaceChanged(bool);
