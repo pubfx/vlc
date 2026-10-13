@@ -956,6 +956,7 @@ FocusScope {
         title: Player.title
 
         pinControls: MainCtx.pinVideoControls
+        redesignMenu: true // Redesign: one "..." menu (SPEC §2)
 
         showCSD: MainCtx.clientSideDecoration && (MainCtx.intfMainWindow.visibility !== Window.FullScreen)
         showToolbar: MainCtx.hasToolbarMenu && (MainCtx.intfMainWindow.visibility !== Window.FullScreen)

@@ -821,7 +821,7 @@ static void redesignOpenEntries( qt_intf_t *p_intf, QMenu *menu )
 
     addDPStaticEntry( menu, qtr( "Open File(s)..." ),
         ":/menu/file.svg", []() { THEDP->simpleOpenDialog(); }, "Ctrl+O" );
-    addDPStaticEntry( menu, qfut( I_OP_OPDIR ),
+    addDPStaticEntry( menu, qtr( "Open &Folder..." ),
         ":/menu/folder.svg", &DialogsProvider::PLOpenDir, "Ctrl+F" );
     addDPStaticEntry( menu, qtr( "Open &Network Stream..." ),
         ":/menu/network.svg", &DialogsProvider::openNetDialog, "Ctrl+N" );
@@ -929,6 +929,46 @@ static QMenu* redesignPopupMenu( qt_intf_t *p_intf, bool show )
     if( show )
         menu->popup( QCursor::pos() );
     return menu;
+}
+
+void VLCMenuBar::ApplyRedesignStyle( QMenu *menu )
+{
+    applyRedesignMenuStyle( menu );
+}
+
+/* Redesign: "..." menu of the player top bar (SPEC §2, Figma "menu"): open
+ * actions, then the extra settings. It replaces the old "⋮" menu, which
+ * duplicated the menu bar; its Tools and View items stay reachable through
+ * More Settings. Profiles come with phase 6. */
+void VLCMenuBar::RedesignMainMenu( qt_intf_t *p_intf, QMenu *menu )
+{
+    applyRedesignMenuStyle( menu );
+
+    redesignOpenEntries( p_intf, menu );
+    menu->addSeparator();
+
+    addDPStaticEntry( menu, qtr( "Keyboard Shortcuts" ), "",
+                      &DialogsProvider::keyboardShortcutsDialog );
+    if( !p_intf->b_isDialogProvider )
+        addDPStaticEntry( menu, qtr( "Customize Player..." ), ":/menu/preferences.svg",
+                          &DialogsProvider::showToolbarEditorDialog );
+    addDPStaticEntry( menu, qtr( "Settings" ), ":/menu/preferences.svg",
+                      &DialogsProvider::prefsDialog, "Ctrl+P", QAction::PreferencesRole );
+
+    QMenu *settingsMenu = newRedesignSubmenu( menu, qtr( "More Settings" ) );
+    ToolsMenu( p_intf, settingsMenu );
+    settingsMenu->addSeparator();
+    QMenu *viewMenu = newRedesignSubmenu( settingsMenu, qtr( "V&iew" ) );
+    ViewMenu( p_intf, viewMenu );
+    settingsMenu->addMenu( viewMenu );
+    menu->addMenu( settingsMenu );
+
+    menu->addSeparator();
+    addDPStaticEntry( menu, qtr( "About VLC" ), ":/menu/info.svg",
+                      &DialogsProvider::aboutDialog, "Shift+F1", QAction::AboutRole );
+
+    for( QMenu *child : menu->findChildren<QMenu *>() )
+        applyRedesignMenuStyle( child );
 }
 
 /* Main Menu that sticks everything together  */

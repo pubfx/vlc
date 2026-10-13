@@ -42,6 +42,7 @@
 /* The dialogs */
 #include "dialogs/bookmarks/bookmarks.hpp"
 #include "dialogs/preferences/preferences.hpp"
+#include "dialogs/preferences/simple_preferences.hpp" /* SPrefsHotkeys */
 #include "dialogs/mediainfo/mediainfo.hpp"
 #include "dialogs/messages/messages.hpp"
 #include "dialogs/extended/extended.hpp"
@@ -300,6 +301,20 @@ void DialogsProvider::prefsDialog()
     {
         m_prefsDialog->reject();
     }
+}
+
+// Redesign: "Keyboard Shortcuts" entry of the "..." menu. Opens the preferences
+// on the hotkeys page until shortcuts get their own dialog (SPEC §5).
+void DialogsProvider::keyboardShortcutsDialog()
+{
+    if (!m_prefsDialog)
+    {
+        m_prefsDialog = new PrefsDialog( nullptr, p_intf );
+        m_prefsDialog->setAttribute(Qt::WA_DeleteOnClose);
+        m_prefsDialog->installEventFilter(this);
+        m_prefsDialog->open();
+    }
+    m_prefsDialog->showSimpleCategory( SPrefsHotkeys );
 }
 
 void DialogsProvider::firstRunDialog()

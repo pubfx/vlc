@@ -45,6 +45,7 @@ class MLFoldersEditor;
 
 #include <QWidget>
 class QLineEdit;
+class QSignalMapper;
 class QLabel;
 class QPushButton;
 class QAbstractButton;
@@ -83,8 +84,11 @@ class SPrefsCatList : public QWidget
 public:
     SPrefsCatList( qt_intf_t *, QWidget * );
     virtual ~SPrefsCatList() {}
+    // Redesign: select a category from code, with its button checked
+    void showPanel( int );
 private:
     qt_intf_t *p_intf;
+    QSignalMapper *m_mapper = nullptr; // Redesign: kept for showPanel()
 signals:
     void currentItemChanged( int );
 public slots:

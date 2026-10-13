@@ -153,6 +153,8 @@ class QmlGlobalMenu : public VLCMenuBar
 {
     Q_OBJECT
     SIMPLE_MENU_PROPERTY(MainCtx*, ctx, nullptr)
+    // Redesign: build the "..." menu of Figma "menu" instead of the menu bar contents
+    SIMPLE_MENU_PROPERTY(bool, redesign, false)
 
     Q_PROPERTY(bool shown READ isShown NOTIFY shownChanged FINAL)
 

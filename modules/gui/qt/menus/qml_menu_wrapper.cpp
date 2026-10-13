@@ -264,6 +264,13 @@ void QmlGlobalMenu::popup(QPoint pos)
         aboutToHide();
     });
 
+    if (m_redesign)
+    {
+        RedesignMainMenu( p_intf, m_menu.get() );
+        m_menu->popup(pos);
+        return;
+    }
+
     submenu = m_menu->addMenu(qtr( "&Media" ));
     FileMenu( p_intf, submenu );
 

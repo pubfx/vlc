@@ -46,6 +46,9 @@ public:
     PrefsDialog( QWindow *, qt_intf_t * );
     virtual ~PrefsDialog();
 
+    // Redesign: open the simple preferences on a category (e.g. SPrefsHotkeys)
+    void showSimpleCategory( int category );
+
 private:
     size_t count;
     module_t **p_list;

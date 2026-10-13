@@ -96,6 +96,11 @@ public:
 
     static void HelpMenu( qt_intf_t *, QMenu *menu );
 
+    /* Redesign: "..." menu of the player top bar (Figma "menu") and the
+     * dark menu style shared with the right-click menu */
+    static void RedesignMainMenu( qt_intf_t *, QMenu *menu );
+    static void ApplyRedesignStyle( QMenu *menu );
+
     /* Popups Menus */
     static void PopupMenuStaticEntries( QMenu *menu );
     static void PopupMenuPlaylistEntries( QMenu *menu, qt_intf_t *p_intf );

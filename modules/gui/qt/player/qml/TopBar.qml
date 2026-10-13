@@ -51,6 +51,9 @@ FocusScope{
     property bool showCSD: false
     property bool showToolbar: false
     property bool pinControls: false
+    // Redesign: one "..." menu next to the logo (Figma "menu") instead of the
+    // "⋮" menu and play queue buttons on the right
+    property bool redesignMenu: false
 
     readonly property ColorContext colorContext: ColorContext {
         id: theme
@@ -271,6 +274,7 @@ FocusScope{
 
             implicitHeight: VLCStyle.icon_banner + VLCStyle.margin_xxsmall * 2
             implicitWidth: backBtn.implicitWidth + logo.implicitWidth + VLCStyle.margin_xxsmall
+                           + (moreBtn.visible ? moreBtn.implicitWidth + VLCStyle.margin_xxsmall : 0)
 
             Widgets.IconToolButton {
                 id: backBtn
@@ -302,6 +306,57 @@ FocusScope{
                 anchors.leftMargin: VLCStyle.margin_xxsmall
 
                 color: theme.accent
+            }
+
+            // Redesign: the "..." menu (open media, shortcuts, settings, about)
+            Widgets.IconToolButton {
+                id: moreBtn
+
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: logo.right
+                anchors.leftMargin: VLCStyle.margin_xxsmall
+
+                visible: root.redesignMenu
+                enabled: visible
+
+                width: VLCStyle.bannerButton_width
+                height: VLCStyle.bannerButton_height
+
+                // the vertical "more" glyph turned into Figma's horizontal "..."
+                rotation: 90
+
+                font.pixelSize: VLCStyle.icon_banner
+                text: VLCIcons.more
+                description: qsTr("Menu")
+
+                AccessibleCompat.id: "topBarMoreMenuButton"
+
+                checked: moreMenu.shown
+
+                Navigation.parentItem: root
+                Navigation.leftItem: backBtn
+
+                onClicked: moreMenu.popup(this.mapToGlobal(0, height))
+
+                onHoveredChanged: root.requestLockUnlockAutoHide(hovered)
+
+                Menus.QmlGlobalMenu {
+                    id: moreMenu
+
+                    ctx: MainCtx
+                    redesign: true
+
+                    onAboutToShow: root.requestLockUnlockAutoHide(true)
+                    onAboutToHide: root.requestLockUnlockAutoHide(false)
+                }
+
+                Connections {
+                    target: root
+
+                    function onForceUnlock() {
+                        moreMenu.close()
+                    }
+                }
             }
         }
 
@@ -438,7 +493,7 @@ FocusScope{
             id: menuSelector
 
             anchors.verticalCenter: parent.verticalCenter
-            visible: !root.showToolbar
+            visible: !root.showToolbar && !root.redesignMenu
             enabled: visible
             focus: visible
             font.pixelSize: VLCStyle.icon_banner
@@ -484,6 +539,8 @@ FocusScope{
 
             anchors.verticalCenter: parent.verticalCenter
             objectName: ControlListModel.PLAYLIST_BUTTON
+            // Redesign: the queue button is in the control bar
+            visible: !root.redesignMenu
             font.pixelSize: VLCStyle.icon_banner
             text: VLCIcons.playlist
             description: qsTr("Play Queue")

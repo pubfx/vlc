@@ -291,6 +291,13 @@ void PrefsDialog::setSimple()
     setWindowTitle( qtr( "Simple Preferences" ) );
 }
 
+// Redesign: open the simple preferences on a category (e.g. SPrefsHotkeys)
+void PrefsDialog::showSimpleCategory( int category )
+{
+    setSimple();
+    simple_tree->showPanel( category );
+}
+
 /* Switching from on simple panel to another */
 void PrefsDialog::changeSimplePanel( int number )
 {

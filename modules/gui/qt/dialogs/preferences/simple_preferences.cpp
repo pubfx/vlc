@@ -229,6 +229,7 @@ SPrefsCatList::SPrefsCatList( qt_intf_t *_p_intf, QWidget *_parent ) :
        set focus (keys) when it manages the buttons's exclusivity.
        See QT bugs 131 & 816 and QAbstractButton's source code. */
     QSignalMapper *mapper = new QSignalMapper( layout );
+    m_mapper = mapper; // Redesign
     connect( mapper, &QSignalMapper::mappedInt, this, &SPrefsCatList::switchPanel );
     qreal dpr = devicePixelRatioF();
 
@@ -275,6 +276,14 @@ SPrefsCatList::SPrefsCatList( qt_intf_t *_p_intf, QWidget *_parent ) :
 void SPrefsCatList::switchPanel( int i )
 {
     emit currentItemChanged( i );
+}
+
+// Redesign: select a category from code, with its button checked
+void SPrefsCatList::showPanel( int i )
+{
+    if( auto button = qobject_cast<QToolButton*>( m_mapper->mapping( i ) ) )
+        button->setChecked( true );
+    switchPanel( i );
 }
 
 /*********************************************************************
