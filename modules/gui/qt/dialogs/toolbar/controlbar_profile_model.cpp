@@ -114,7 +114,10 @@ decltype (ControlbarProfileModel::m_defaults)
                                 },
                                 {
                                     ControlListModel::VOLUME,
-                                    ControlListModel::LANG_BUTTON,
+                                    // Redesign (phase 2): separate audio and subtitle
+                                    // buttons open their track lists directly
+                                    ControlListModel::AUDIO_TRACKS_BUTTON,
+                                    ControlListModel::SUBTITLE_TRACKS_BUTTON,
                                     ControlListModel::EXTENDED_BUTTON,
                                     ControlListModel::PLAYLIST_BUTTON,
                                     ControlListModel::FULLSCREEN_BUTTON
@@ -137,7 +140,7 @@ decltype (ControlbarProfileModel::m_defaults)
                                     ControlListModel::VOLUME,
                                     ControlListModel::RANDOM_BUTTON,
                                     ControlListModel::LOOP_BUTTON,
-                                    ControlListModel::LANG_BUTTON,
+                                    ControlListModel::AUDIO_TRACKS_BUTTON,
                                     ControlListModel::EXTENDED_BUTTON,
                                     ControlListModel::PLAYLIST_BUTTON
                                 }

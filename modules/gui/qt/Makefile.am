@@ -1184,6 +1184,7 @@ libqml_module_player_a_QML = \
 	player/qml/TracksPageAudio.qml \
 	player/qml/TracksPageSpeed.qml \
 	player/qml/TracksPageSubtitle.qml \
+	player/qml/TracksQuickMenu.qml \
 	player/qml/TracksListPage.qml \
 	player/qml/ControlLayout.qml \
 	player/qml/ControlRepeater.qml \
@@ -1217,6 +1218,9 @@ libqml_module_playercontrols_a_QML = \
 	player/qml/controlbarcontrols/FullscreenButton.qml \
 	player/qml/controlbarcontrols/InfoButton.qml \
 	player/qml/controlbarcontrols/LangButton.qml \
+	player/qml/controlbarcontrols/TracksQuickButton.qml \
+	player/qml/controlbarcontrols/SubtitleTracksButton.qml \
+	player/qml/controlbarcontrols/AudioTracksButton.qml \
 	player/qml/controlbarcontrols/LoopButton.qml \
 	player/qml/controlbarcontrols/MenuButton.qml \
 	player/qml/controlbarcontrols/NavigationBoxButton.qml \

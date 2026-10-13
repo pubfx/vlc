@@ -82,8 +82,9 @@ public:
         NAVIGATION_BUTTONS,
         PROGRAM_BUTTON,
         NAVIGATION_BOX,
-        RESERVED_0X2B,
-        RESERVED_0X2C,
+        // Redesign: direct subtitle / audio track buttons (reserved slots, so saved layouts stay valid)
+        SUBTITLE_TRACKS_BUTTON,
+        AUDIO_TRACKS_BUTTON,
         RESERVED_0X2D,
         RESERVED_0X2E,
         RESERVED_0X2F,
@@ -111,7 +112,8 @@ public:
     Q_ENUM(ControlType)
 
     static_assert(RESERVED_0X1F == 0x1F, "missaligned");
-    static_assert(RESERVED_0X2B == 0x2B, "missaligned");
+    static_assert(SUBTITLE_TRACKS_BUTTON == 0x2B, "missaligned");
+    static_assert(AUDIO_TRACKS_BUTTON == 0x2C, "missaligned");
     static_assert(RESERVED_0X3F == 0x3F, "missaligned");
 
     // Basic functionality:

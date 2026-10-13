@@ -185,6 +185,12 @@ QtObject {
     // Redesign: wedge ("cone") volume slider
     readonly property int volumeCone_width: MainCtx.dp(64, scale)
     readonly property int volumeCone_height: MainCtx.dp(16, scale)
+    // Redesign: quick track panel opened by the subtitle / audio buttons
+    // (Figma "subtitle one" / "subtitle multiple": 479 x 36 rows)
+    readonly property int trackPanel_width: MainCtx.dp(495, scale)
+    readonly property int trackPanel_maxHeight: MainCtx.dp(420, scale)
+    readonly property int trackPanel_rowHeight: MainCtx.dp(36, scale)
+    readonly property real trackPanel_radius: MainCtx.dp(6, scale)
 
     readonly property int contextButton_width: icon_normal
     readonly property int contextButton_margin: margin_xxsmall
