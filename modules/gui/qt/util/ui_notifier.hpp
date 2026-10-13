@@ -32,7 +32,8 @@ public:
     enum ID
     {
         Scale,
-        MinimalView
+        MinimalView,
+        HideUI // Redesign
     };
 
     Q_ENUM(ID)

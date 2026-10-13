@@ -625,6 +625,16 @@ void MainCtx::setPinVideoControls(bool pinVideoControls)
     emit pinVideoControlsChanged();
 }
 
+// Redesign: "Hide UI" mode of the player
+void MainCtx::setPlayerUiHidden(bool hidden)
+{
+    if (m_playerUiHidden == hidden)
+        return;
+
+    m_playerUiHidden = hidden;
+    emit playerUiHiddenChanged();
+}
+
 void MainCtx::setPinOpacity(float pinOpacity)
 {
     if (m_pinOpacity == pinOpacity)

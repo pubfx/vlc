@@ -56,7 +56,10 @@ FocusScope {
 
     // Private
 
-    property bool _controlsUnderVideo: (MainCtx.pinVideoControls
+    // Redesign: in "Hide UI" mode the video uses the whole window, even with pinned controls
+    property bool _controlsUnderVideo: (!MainCtx.playerUiHidden
+                                        &&
+                                        MainCtx.pinVideoControls
                                         &&
                                         (MainCtx.intfMainWindow.visibility !== Window.FullScreen))
 
@@ -981,7 +984,9 @@ FocusScope {
         //initial state value is "", using a binding avoid animation on startup
         Binding on state {
             when: playerToolbarVisibilityFSM.started
-            value: (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo) ? "visible" : "hidden"
+            // Redesign: "Hide UI" keeps the bar hidden, even on hover
+            value: (!MainCtx.playerUiHidden
+                    && (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo)) ? "visible" : "hidden"
         }
 
         onTogglePlaylistVisibility: playlistVisibility.togglePlaylistVisibility()
@@ -1319,7 +1324,9 @@ FocusScope {
         //initial state value is "", using a binding avoid animation on startup
         Binding on state {
             when: playerToolbarVisibilityFSM.started
-            value: (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo) ? "visible" : "hidden"
+            // Redesign: "Hide UI" keeps the bar hidden, even on hover
+            value: (!MainCtx.playerUiHidden
+                    && (playerToolbarVisibilityFSM.isVisible || rootPlayer._controlsUnderVideo)) ? "visible" : "hidden"
         }
 
         onRequestLockUnlockAutoHide: (lock) => rootPlayer.lockUnlockAutoHide(lock)

@@ -42,4 +42,12 @@ void UINotifier::setupNotifications()
             emit showNotification(MinimalView
                                   , qtr("Minimal View"));
     });
+
+    // Redesign: tell how to get the hidden player bars back
+    connect(m_ctx, &MainCtx::playerUiHiddenChanged, this, [this]()
+    {
+        if (m_ctx->playerUiHidden())
+            emit showNotification(HideUI
+                                  , qtr("Interface hidden. Press Ctrl+\\ to show it"));
+    });
 }

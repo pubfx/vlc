@@ -120,6 +120,8 @@ class MainCtx : public QObject
     Q_PROPERTY(bool hasToolbarMenu READ hasToolbarMenu WRITE setHasToolbarMenu NOTIFY hasToolbarMenuChanged FINAL)
     Q_PROPERTY(bool canShowVideoPIP READ canShowVideoPIP CONSTANT FINAL)
     Q_PROPERTY(bool pinVideoControls READ pinVideoControls WRITE setPinVideoControls NOTIFY pinVideoControlsChanged FINAL)
+    // Redesign: "Hide UI" (Ctrl+\): the player keeps its bars hidden, even on hover
+    Q_PROPERTY(bool playerUiHidden READ playerUiHidden WRITE setPlayerUiHidden NOTIFY playerUiHiddenChanged FINAL)
     Q_PROPERTY(float pinOpacity READ pinOpacity WRITE setPinOpacity NOTIFY pinOpacityChanged FINAL)
     Q_PROPERTY(ControlbarProfileModel* controlbarProfileModel READ controlbarProfileModel CONSTANT FINAL)
     Q_PROPERTY(bool hasAcrylicSurface READ hasAcrylicSurface NOTIFY hasAcrylicSurfaceChanged FINAL)
@@ -248,6 +250,7 @@ public:
     inline void setCanShowVideoPIP(bool canShowVideoPIP) { m_canShowVideoPIP = canShowVideoPIP; }
 
     inline bool pinVideoControls() const { return m_pinVideoControls; }
+    inline bool playerUiHidden() const { return m_playerUiHidden; }
     inline float pinOpacity() const { return m_pinOpacity; }
 
     inline ControlbarProfileModel* controlbarProfileModel() const { return m_controlbarProfileModel; }
@@ -458,6 +461,7 @@ protected:
 
     /* Pinned */
     bool                 m_pinVideoControls = false;
+    bool                 m_playerUiHidden = false; // Redesign: not saved, resets on restart
     float                m_pinOpacity       = 1.0f;
 
     bool                 m_useGlobalShortcuts = true;
@@ -527,6 +531,7 @@ public slots:
     void setHasToolbarMenu( bool );
 
     void setPinVideoControls( bool );
+    void setPlayerUiHidden( bool );
     void setPinOpacity( float );
 
     void setbgCone(bool);
@@ -588,6 +593,7 @@ signals:
     void intfDevicePixelRatioChanged();
 
     void pinVideoControlsChanged();
+    void playerUiHiddenChanged();
     void pinOpacityChanged();
 
     void hasAcrylicSurfaceChanged(bool);

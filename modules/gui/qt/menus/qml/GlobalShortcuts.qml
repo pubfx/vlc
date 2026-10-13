@@ -48,6 +48,8 @@ Item {
     ShortcutExt{ sequence:"F10"; onActivated: MainCtx.toggleToolbarMenu() }
     ShortcutExt{ sequence:"F11"; onActivated: MainCtx.toggleInterfaceFullScreen() }
     ShortcutExt{ sequence:"Ctrl+H"; onActivated: MainCtx.minimalView = !MainCtx.minimalView; }
+    // Redesign: "Hide UI" keeps the player bars hidden (Figma "Player - hide UI")
+    ShortcutExt{ context: Qt.WindowShortcut; sequence:"Ctrl+\\"; onActivated: MainCtx.playerUiHidden = !MainCtx.playerUiHidden; }
 
     ShortcutExt{ sequences: [StandardKey.ZoomIn, "Ctrl+="]; onActivated: MainCtx.incrementIntfUserScaleFactor(true) }
     ShortcutExt{ sequences: [StandardKey.ZoomOut, "Ctrl+Shift+-"]; onActivated: MainCtx.incrementIntfUserScaleFactor(false) }
