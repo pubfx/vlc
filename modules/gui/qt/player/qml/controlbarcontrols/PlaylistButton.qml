@@ -28,12 +28,9 @@ Widgets.IconToolButton {
     id: playlistBtn
 
     text: VLCIcons.playlist
-    onClicked: {
-        MainCtx.playqueuePanel.visible = !MainCtx.playqueuePanel.visible
-        if (MainCtx.playqueuePanel.visible && MainCtx.playqueuePanel.docked) {
-            playlistWidget.gainFocus(playlistBtn)
-        }
-    }
+    // Redesign: removed the call to `playlistWidget.gainFocus()`; that id no longer
+    // exists, so every click on the (now bottom-right) queue button threw a ReferenceError.
+    onClicked: MainCtx.playqueuePanel.visible = !MainCtx.playqueuePanel.visible
     checked: MainCtx.playqueuePanel.visible
 
     description: qsTr("Play Queue")
